@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  crawler:
+    build: 
+      context: ./crawler/
+    environment:
+      - STORAGE_SERVICE_NAME=${STORAGE_SERVICE_NAME}
+      - STORAGE_SERVICE_PORT=${STORAGE_SERVICE_PORT}
+    volumes:
+      - ./crawler/app:/crawler/app/:rw
+    entrypoint: "python3 crawler.py"
+  storage:
+    build: 
+      context: ./storage/
+      args: 
+      - STORAGE_SERVICE_PORT=${STORAGE_SERVICE_PORT}
+    ports:
+      - ${STORAGE_SERVICE_PORT}:${STORAGE_SERVICE_PORT}
+    environment:
+      - FLASK_APP=/storage/app/storage.py
+      - FLASK_DB=/storage/data/database.db
+      - RESET_DB=0
+      - STORAGE_SERVICE_PORT=${STORAGE_SERVICE_PORT}
+    volumes:
+      - db_data:/storage/data:rw
+      - ./storage/app:/storage/app:rw
+    container_name: ${STORAGE_SERVICE_NAME}
+    entrypoint: "flask run --host 0.0.0.0 --port ${STORAGE_SERVICE_PORT}"
+volumes:
+    db_data: {}

@@ -1,4 +1,6 @@
 import os
+from os import environ
 
 class Config:
-    FLASK_DB = os.environ.get('FLASK_DB')
+    REDIS_URL = "redis://:@{}:{}/0".format(environ.get('DB_SERVICE_NAME', ""), 
+                                           environ.get('DB_SERVICE_PORT', ""))

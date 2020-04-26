@@ -10,6 +10,7 @@ services:
     volumes:
       - ./crawler/app:/crawler/app/:rw
     entrypoint: "python3 crawler.py"
+    container_name: ${CRAWLER_SERVICE_NAME}
   storage:
     build: 
       context: ./storage/
@@ -19,13 +20,19 @@ services:
       - ${STORAGE_SERVICE_PORT}:${STORAGE_SERVICE_PORT}
     environment:
       - FLASK_APP=/storage/app/storage.py
-      - FLASK_DB=/storage/data/database.db
-      - RESET_DB=0
       - STORAGE_SERVICE_PORT=${STORAGE_SERVICE_PORT}
+      - DB_SERVICE_NAME=${DB_SERVICE_NAME}
+      - DB_SERVICE_PORT=${DB_SERVICE_PORT}
     volumes:
-      - db_data:/storage/data:rw
       - ./storage/app:/storage/app:rw
     container_name: ${STORAGE_SERVICE_NAME}
-    entrypoint: "flask run --host 0.0.0.0 --port ${STORAGE_SERVICE_PORT}"
+    entrypoint: "flask run --host 0.0.0.0 --port ${STORAGE_SERVICE_PORT}"  
+  db:
+    image: redis:latest
+    ports:
+      - ${DB_SERVICE_PORT}:${DB_SERVICE_PORT}
+    volumes:
+      - db_data:/data:rw
+    container_name: ${DB_SERVICE_NAME}
 volumes:
     db_data: {}

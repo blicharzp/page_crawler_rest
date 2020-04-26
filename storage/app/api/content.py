@@ -1,31 +1,29 @@
-from flask import jsonify, request, g, url_for, current_app
+from flask import jsonify, request
+from json import dumps, loads
+from app.db import db
 import shelve
 import os
-
-from .error import build_error_message
 from . import api
-
 
 @api.route('/content/')
 def get_all():
-    with shelve.open(current_app.config['FLASK_DB']) as db:
-        return jsonify({
-            'content': db['content'],
-            'count': len(db['content'])
-        })
+    content = [loads(element) for element in db.lrange('content', 0, -1)]
+    return jsonify({
+        'content': content,
+        'count': len(content)
+    })
 
 
 @api.route('/content/<int:content_id>')
 def get_single(content_id):
-    with shelve.open(current_app.config['FLASK_DB']) as db:
-        try:
-            return jsonify(db['content'][content_id])
-        except IndexError:
-            return jsonify("Content with {} index does not exist.".format(content_id)), 404
+    try:
+        content = loads(*db.lrange('content', content_id, content_id))
+    except TypeError:
+        return jsonify("Content with {} index does not exist.".format(content_id)), 404
+    return jsonify(content)
 
 
 @api.route('/content/', methods=['POST'])
 def add_new():
-    with shelve.open(current_app.config['FLASK_DB']) as db:
-        db['content'] += [request.json]
+    db.lpush('content', request.json)
     return jsonify(request.json), 201

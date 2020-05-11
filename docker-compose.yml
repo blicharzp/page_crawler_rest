@@ -7,6 +7,7 @@ services:
     environment:
       - STORAGE_SERVICE_NAME=${STORAGE_SERVICE_NAME}
       - STORAGE_SERVICE_PORT=${STORAGE_SERVICE_PORT}
+      - CRAWLER_SOURCE_ADDRESS=${CRAWLER_SOURCE_ADDRESS}
     volumes:
       - ./crawler/app:/crawler/app/:rw
     entrypoint: "python3 crawler.py"

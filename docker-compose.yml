@@ -3,6 +3,7 @@ version: '3'
 services:
   crawler:
     build: 
+      network: host
       context: ./crawler/
     environment:
       - STORAGE_SERVICE_NAME=${STORAGE_SERVICE_NAME}
@@ -13,7 +14,8 @@ services:
     entrypoint: "python3 crawler.py"
     container_name: ${CRAWLER_SERVICE_NAME}
   storage:
-    build: 
+    build:
+      network: host
       context: ./storage/
       args: 
       - STORAGE_SERVICE_PORT=${STORAGE_SERVICE_PORT}
